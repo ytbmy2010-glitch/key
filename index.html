@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Key Nvthuan</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, sans-serif;
+}
+
+body{
+    background:#111827;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+
+.card{
+    width:340px;
+    background:#1f2937;
+    border-radius:16px;
+    padding:25px;
+    text-align:center;
+    box-shadow:0 0 20px rgba(0,0,0,.4);
+}
+
+h2{
+    color:#00e5ff;
+    margin-bottom:20px;
+}
+
+.unlock{
+    color:#fff;
+    font-size:18px;
+    margin-bottom:15px;
+}
+
+.key{
+    background:#111827;
+    color:#00ff99;
+    padding:12px;
+    border-radius:10px;
+    font-size:18px;
+    font-weight:bold;
+    margin-bottom:20px;
+    word-break:break-all;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    background:#00c853;
+    color:#fff;
+    font-size:17px;
+    cursor:pointer;
+    transition:.2s;
+}
+
+button:hover{
+    background:#00b248;
+}
+
+#msg{
+    margin-top:15px;
+    color:#00ff99;
+    font-size:15px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+    <h2>Admin Key Nvthuan</h2>
+
+    <div class="unlock">
+        Bạn đã được unlock lại
+    </div>
+
+    <div class="key">
+        KEY: <span id="key">Nguenvanthuandz</span>
+    </div>
+
+    <button onclick="copyKey()">📋 Copy Key</button>
+
+    <div id="msg"></div>
+</div>
+
+<script>
+function copyKey(){
+    const key = document.getElementById("key").innerText;
+
+    navigator.clipboard.writeText(key).then(()=>{
+        document.getElementById("msg").innerText = "✅ Đã copy key!";
+    }).catch(()=>{
+        const textArea = document.createElement("textarea");
+        textArea.value = key;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+        document.getElementById("msg").innerText = "✅ Đã copy key!";
+    });
+}
+</script>
+
+</body>
+  </html>
