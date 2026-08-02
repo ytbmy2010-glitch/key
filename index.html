@@ -1,152 +1,122 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Key Nvthuan</title>
-
-<style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Arial, sans-serif;
-}
-
-body{
-    background:#111827;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-}
-
-.card{
-    width:340px;
-    background:#1f2937;
-    border-radius:16px;
-    padding:25px;
-    text-align:center;
-    box-shadow:0 0 20px rgba(0,0,0,.4);
-}
-
-h2{
-    color:#00e5ff;
-    margin-bottom:20px;
-}
-
-/* Đồng hồ đếm ngược */
-.timer{
-    color:#00ff66;
-    font-size:20px;
-    font-weight:bold;
-    margin-bottom:18px;
-    text-shadow:0 0 10px #00ff66;
-}
-
-.unlock{
-    color:#fff;
-    font-size:18px;
-    margin-bottom:15px;
-}
-
-.key{
-    background:#111827;
-    color:#00ff99;
-    padding:12px;
-    border-radius:10px;
-    font-size:18px;
-    font-weight:bold;
-    margin-bottom:20px;
-    word-break:break-all;
-}
-
-button{
-    width:100%;
-    padding:12px;
-    border:none;
-    border-radius:10px;
-    background:#00c853;
-    color:#fff;
-    font-size:17px;
-    cursor:pointer;
-    transition:.2s;
-}
-
-button:hover{
-    background:#00b248;
-}
-
-#msg{
-    margin-top:15px;
-    color:#00ff99;
-    font-size:15px;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Quản Trị Admin Nvthuan</title>
+    <!-- Nhúng thư viện Firebase từ Google -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f9; padding: 15px; margin: 0; }
+        .card { background: white; padding: 15px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        input, button { width: 100%; padding: 12px; margin-top: 8px; box-sizing: border-box; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; }
+        button { background: #4CAF50; color: white; border: none; font-weight: bold; cursor: pointer; }
+        button:active { background: #45a049; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; overflow-x: auto; display: block; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 13px; white-space: nowrap; }
+        th { background: #007bff; color: white; }
+        h2, h3 { margin-top: 0; color: #333; }
+    </style>
 </head>
-
 <body>
 
-<div class="card">
-    <h2>Admin Key Nvthuan</h2>
+    <h2>Quản Lý Ứng Dụng Admin</h2>
 
-    <div class="timer">
-        ⏳ Thời gian còn lại: <span id="countdown">96:00:00</span>
+    <!-- Phần Tạo Tài Khoản / Key -->
+    <div class="card">
+        <h3>Tạo Tài Khoản & Key Mới</h3>
+        <input type="text" id="username" placeholder="Tên tài khoản (Usuário)">
+        <input type="text" id="password" placeholder="Mật khẩu (Senha)">
+        <input type="number" id="devices" placeholder="Số thiết bị tối đa">
+        <input type="number" id="days" placeholder="Số ngày sử dụng">
+        <button onclick="taoTaiKhoan()">Tạo Ngay Lập Tức</button>
     </div>
 
-    <div class="unlock">
-        Bạn đã được unlock lại
+    <!-- Phần Hiển Thị Thông Tin Đăng Nhập Từ Thiết Bị -->
+    <div class="card">
+        <h3>Thông Tin Thiết Bị Đăng Nhập</h3>
+        <table id="bangDulieu">
+            <tr>
+                <th>Tài Khoản</th>
+                <th>Tên Điện Thoại</th>
+                <th>Android</th>
+                <th>Ngày Giờ</th>
+                <th>Trạng Thái</th>
+            </tr>
+        </table>
     </div>
 
-    <div class="key">
-        KEY: <span id="key">Nvthuan-123021  </span>
-    </div>
+    <script>
+        // Cấu hình Firebase chuẩn xác từ dự án của bạn
+        const firebaseConfig = {
+            apiKey: "AIzaSyB2eMK7y1udMPK7iDi_5sbl3ZJIku5meeA",
+            databaseURL: "https://admin-e5361-default-rtdb.firebaseio.com",
+            projectId: "admin-e5361",
+            storageBucket: "admin-e5361.firebasestorage.app"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-    <button onclick="copyKey()">📋 Copy Key</button>
+        // 1. Hàm đẩy tài khoản mới lên Firebase Realtime Database
+        function taoTaiKhoan() {
+            let u = document.getElementById('username').value;
+            let p = document.getElementById('password').value;
+            let d = document.getElementById('devices').value;
+            let day = document.getElementById('days').value;
 
-    <div id="msg"></div>
-</div>
+            if(!u || !p) {
+                alert("Vui lòng điền đầy đủ tên tài khoản và mật khẩu!");
+                return;
+            }
 
-<script>
-// Đếm ngược 96 phút kể từ khi mở web
-let timeLeft = 96 * 60;
+            db.ref('Usuarios').push({
+                Usuário: u,
+                Senha: p,
+                SoThietBi: d || "1",
+                SoNgay: day || "30",
+                Conectados: 0,
+                Status: true
+            }, function(error) {
+                if (error) {
+                    alert("Có lỗi xảy ra: " + error.message);
+                } else {
+                    alert("Đã tạo tài khoản thành công lên Firebase!");
+                    document.getElementById('username').value = '';
+                    document.getElementById('password').value = '';
+                    document.getElementById('devices').value = '';
+                    document.getElementById('days').value = '';
+                }
+            });
+        }
 
-function updateCountdown(){
-    let minutes = Math.floor(timeLeft / 60);
-    let seconds = timeLeft % 60;
+        // 2. Hàm lắng nghe dữ liệu từ Firebase để đổ ra bảng quản lý
+        db.ref('Usuarios').on('value', function(snapshot) {
+            let bang = document.getElementById('bangDulieu');
+            // Giữ lại tiêu đề bảng, làm sạch các dòng cũ
+            bang.innerHTML = `
+                <tr>
+                    <th>Tài Khoản</th>
+                    <th>Tên Điện Thoại</th>
+                    <th>Android</th>
+                    <th>Ngày Giờ</th>
+                    <th>Trạng Thái</th>
+                </tr>
+            `;
 
-    document.getElementById("countdown").innerText =
-        String(minutes).padStart(2,'0') + ":" +
-        String(seconds).padStart(2,'0');
-
-    if(timeLeft > 0){
-        timeLeft--;
-    }else{
-        clearInterval(timer);
-        document.getElementById("countdown").innerText = "Hết thời gian";
-    }
-}
-
-updateCountdown();
-const timer = setInterval(updateCountdown,1000);
-
-// Copy Key
-function copyKey(){
-    const key = document.getElementById("key").innerText;
-
-    navigator.clipboard.writeText(key).then(()=>{
-        document.getElementById("msg").innerText = "✅ Đã copy key!";
-    }).catch(()=>{
-        const textArea = document.createElement("textarea");
-        textArea.value = key;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand("copy");
-        document.body.removeChild(textArea);
-        document.getElementById("msg").innerText = "✅ Đã copy key!";
-    });
-}
-</script>
-
+            snapshot.forEach(function(childSnapshot) {
+                let data = childSnapshot.val();
+                let row = `<tr>
+                    <td>${data.Usuário || 'Chưa có'}</td>
+                    <td>${data.DeviceName || 'Chưa kết nối'}</td>
+                    <td>${data.AndroidVersion || 'N/A'}</td>
+                    <td>${data.LoginTime || 'N/A'}</td>
+                    <td>${data.Status ? 'Hoạt động' : 'Khóa'}</td>
+                </tr>`;
+                bang.innerHTML += row;
+            });
+        });
+    </script>
 </body>
 </html>
